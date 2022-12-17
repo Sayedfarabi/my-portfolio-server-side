@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const colors = require("colors");
 require("dotenv").config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 const userName = process.env.Database_User_Name;
 const userPassword = process.env.Database_User_Password;
-console.log(userName, userPassword);
+// console.log(userName, userPassword);
 
 const uri = `mongodb+srv://${userName}:${userPassword}@cluster0.wfsi327.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -44,7 +44,7 @@ app.post("/addService", async (req, res) => {
     try {
         const data = req.body;
         const result = await services.insertOne(data)
-        console.log(result);
+        // console.log(result);
         if (result.acknowledged) {
             res.send({
                 success: true,
@@ -65,7 +65,7 @@ app.post("/addProject", async (req, res) => {
     try {
         const data = req.body;
         const result = await projects.insertOne(data)
-        console.log(result);
+        // console.log(result);
         if (result.acknowledged) {
             res.send({
                 success: true,
@@ -100,6 +100,25 @@ app.get("/myProjects", async (req, res) => {
     try {
         const query = {};
         const data = await projects.find(query).toArray()
+        res.send(data)
+    } catch (error) {
+        console.log(error.name.bgRed, error.message.yellow);
+        res.send({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
+app.get("/projectDetails/:id", async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        // console.log(id);
+        const query = {
+            _id: ObjectId(id)
+        };
+        const data = await projects.findOne(query);
+        // console.log(data);
         res.send(data)
     } catch (error) {
         console.log(error.name.bgRed, error.message.yellow);
