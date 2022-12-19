@@ -38,6 +38,7 @@ dbConnect()
 // Database Collection Name 
 const services = client.db("myPortfolioWebsite").collection("services");
 const projects = client.db("myPortfolioWebsite").collection("projects");
+const users = client.db("myPortfolioWebsite").collection("users");
 
 
 app.post("/addService", async (req, res) => {
@@ -73,6 +74,61 @@ app.post("/addProject", async (req, res) => {
             })
         }
 
+    } catch (error) {
+        console.log(error.name.bgRed, error.message.yellow);
+        res.send({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
+app.post("/addUser", async (req, res) => {
+    try {
+        const data = req.body;
+        const query = {
+            email: data.email
+        }
+
+        const isAdded = await users.findOne(query)
+        if (isAdded) {
+            res.send({
+                success: false,
+                message: "user Already added"
+            })
+        } else {
+            const result = await users.insertOne(data)
+            if (result) {
+                res.send({
+                    success: true,
+                    message: "user add to database successfully"
+                })
+            }
+        }
+
+    } catch (error) {
+        console.log(error.name.bgRed, error.message.yellow);
+        res.send({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
+app.get("/getUser", async (req, res) => {
+    try {
+        const email = req?.query?.email
+        console.log(email);
+        const query = {
+            email: email
+        }
+        const result = await users.findOne(query)
+        if (result) {
+            res.send({
+                success: true,
+                data: result
+            })
+        }
     } catch (error) {
         console.log(error.name.bgRed, error.message.yellow);
         res.send({
